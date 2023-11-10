@@ -6,6 +6,7 @@
     "type": "git",
     "url": "https://github.com/ylinH-git/get-deps-in-vue-project.git"
   },
+  "publisher": "yellin",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.84.0"
@@ -66,11 +67,11 @@
     "@typescript-eslint/parser": "^6.9.0",
     "@vscode/test-electron": "^2.3.6",
     "eslint": "^8.52.0",
-    "glob": "^10.3.10",
     "mocha": "^10.2.0",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@vue/compiler-sfc": "^3.3.8"
+    "@vue/compiler-sfc": "^3.3.8",
+    "glob": "^10.3.10"
   }
 }
