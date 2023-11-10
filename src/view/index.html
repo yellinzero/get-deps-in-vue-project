@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        text {
+            font-weight: 300;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+            font-size: 14px;
+        }
+
+        .node rect {
+            stroke: #333;
+            fill: #fff;
+        }
+
+        .edgePath path {
+            stroke: #333;
+            fill: #333;
+            stroke-width: 1.5px;
+        }
+
+        .node text {
+            pointer-events: none;
+        }
+
+        ol,
+        ul,
+        menu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #loadingBox {
+            display: flex;
+            /*this centers the text horizontally*/
+            justify-content: center;
+            /*this centers the text vertically*/
+            align-items: center;
+            font-size: 1.2rem;
+            width: 100vw;
+            height: 90vh;
+        }
+    </style>
+</head>
+
+<body style="background-color: white;">
+    <h2>
+        <div class="input-group" style="float: right">
+            <input type="text" id="searchbox" class="form-control" placeholder="Search for..." onenter="null">
+        </div>
+    </h2>
+
+    <div id="loadingBox">
+        <p width="100%" style="text-align: center;">loading...</p>
+    </div>
+    <svg id="graph-svg" width="100vw" height="90vh"></svg>
+
+    <script src="../libs/d3.min.js"></script>
+    <script src="../libs/d3-shape.min.js"></script>
+    <script src="../libs/dagre-d3.min.js"></script>
+    <script src="../js/graph-render.js"></script>
+</body>
+
+</html>
