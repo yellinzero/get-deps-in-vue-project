@@ -2,10 +2,16 @@
   "name": "get-deps-in-vue-project",
   "displayName": "getDepsInVueProject",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ylinH-git/get-deps-in-vue-project.git"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.84.0"
   },
+  "author": "Yellin (yellinh99@gmail.com)",
+  "license": "MIT",
   "categories": [
     "Other"
   ],
