@@ -215,7 +215,6 @@ window.addEventListener("message", (event) => {
 
     const render = new dagreD3.render();
     // Run the renderer. This is what draws the final graph.
-    console.log(g.nodes());
     render(inner, g);
     setUpNodeHighlighting();
     setUpZoomSupport();
