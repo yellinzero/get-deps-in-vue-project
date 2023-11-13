@@ -21,6 +21,11 @@ function getIgnore() {
   return config.get("ignore") as string;
 }
 
+function getIgnoreSuffix() {
+  const config = vscode.workspace.getConfiguration("getDepsInVueProject");
+  return config.get("ignoreSuffix") as string;
+}
+
 function toCamelCase(str: string) {
   return str.replace(/-([a-z])/g, function (g) {
     return g[1].toUpperCase();
@@ -31,6 +36,27 @@ function extractFileName(filePath: string) {
   const regex = /(?:^|\/|\\)([^\/\\]+)\.\w+$/;
   const matches = regex.exec(filePath);
   return matches ? matches[1] : "";
+}
+
+function extractIndexFilePath(path: string) {
+  const regex = /^(.+)\/index\..+$/;
+  const match = path.match(regex);
+  if (match) {
+    return match[1];
+  } else {
+    return path;
+  }
+}
+
+function extractWithoutSuffixPath(path: string) {
+  const ignoreSuffix = getIgnoreSuffix();
+  const regex = new RegExp(`^(.+)\.(${ignoreSuffix})$`);
+  const match = path.match(regex);
+  if (match) {
+    return match[1];
+  } else {
+    return path;
+  }
 }
 
 function resolveAliasPath(alias: Record<string, string>, currPath: string) {
@@ -49,7 +75,7 @@ function parseImports(content: string, filePath: string) {
   if (content) {
     // 正则表达式匹配import语句
     const importRegex =
-      /import(\stype)?\s+\{([^}]+)\}\s+from\s+['"]([^'"]+)['"]/g;
+      /(?:import|export)(\stype)?\s+\{([^}]+)\}\s+from\s+['"]([^'"]+)['"]/g;
     let matches;
 
     while ((matches = importRegex.exec(content)) !== null) {
@@ -60,10 +86,13 @@ function parseImports(content: string, filePath: string) {
         cPath
       );
       if (isRelativePath) {
-        cPath = path.join(filePath, cPath);
+        cPath = path.resolve(path.dirname(filePath), cPath);
       }
       arr.push({
-        filePath: cPath,
+        filePath:
+          extractFileName(cPath) === "index"
+            ? extractIndexFilePath(cPath)
+            : cPath,
         exports,
       });
     }
@@ -136,11 +165,16 @@ function parseFile(
   // 建立文件依赖关系
 
   if (type === "imports") {
-    if (!graphData[filePath]) {
-      graphData[filePath] = imports;
+    const purePath = extractWithoutSuffixPath(
+      extractFileName(filePath) === "index"
+        ? extractIndexFilePath(filePath)
+        : filePath
+    );
+    if (!graphData[purePath]) {
+      graphData[purePath] = imports;
     } else {
       imports.forEach(
-        (i) => !graphData[filePath].includes(i) && graphData[filePath].push(i)
+        (i) => !graphData[purePath].includes(i) && graphData[purePath].push(i)
       );
     }
   } else {

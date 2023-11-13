@@ -7,7 +7,7 @@
     "url": "https://github.com/ylinH-git/get-deps-in-vue-project.git"
   },
   "publisher": "yellin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -43,9 +43,16 @@
           "description": "root match string"
         },
         "getDepsInVueProject.ignore": {
+          "type": "array",
+          "default": [
+            "**/node_modules/**"
+          ],
+          "description": "ignore match string array"
+        },
+        "getDepsInVueProject.ignoreSuffix": {
           "type": "string",
-          "default": "**/node_modules/**",
-          "description": "ignore match string"
+          "default": "ts|js|tsx|jsx",
+          "description": "ignore file suffix"
         }
       }
     }
