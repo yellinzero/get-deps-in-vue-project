@@ -12,6 +12,9 @@ let g = new dagreD3.graphlib.Graph().setGraph({
 const svg = d3.select("#graph-svg");
 const inner = svg.append("g");
 
+let mapData = null;
+let mapType = "";
+
 // Returns true if a node's id or its children's id matches search_text
 function nodeMatches(nodeId, searchText) {
   if (nodeId.indexOf(searchText) > -1) {
@@ -159,67 +162,100 @@ d3.select("#searchbox").on("keyup", () => {
   searchboxHighlighting(s);
 });
 
+d3.select("#allBtn").on("click", () => {
+  createMap(mapData, mapType);
+});
+
+function setUpNodeClickHandler() {
+  d3.selectAll("g.node").on("click", function (id) {
+    console.log(id, mapData, mapType);
+    const newData = {};
+    for (const [key, val] of Object.entries(mapData)) {
+      if (key === id) {
+        newData[key] = val;
+      }
+      if (mapType === "components") {
+        if (val.includes(id)) {
+          newData[key] = val;
+        }
+      } else {
+        if (val.find((childFile) => childFile.filePath === id)) {
+          newData[key] = val;
+        }
+      }
+    }
+    // 更新图表数据
+    createMap(newData, mapType);
+  });
+}
+
+function createMap(data, type) {
+  if (!data) {
+    return;
+  }
+  g = new dagreD3.graphlib.Graph().setGraph({
+    rankdir: "LR",
+  });
+
+  if (type === "components") {
+    // 创建节点
+    for (const [key, val] of Object.entries(data)) {
+      g.setNode(key, { label: key });
+      val.forEach((oN) => {
+        g.setNode(oN, { label: oN });
+      });
+    }
+
+    // 创建边
+    for (const [key, val] of Object.entries(data)) {
+      val.forEach((cN) => {
+        g.setEdge(cN, key, { label: "", curve: d3.curveBasis });
+      });
+    }
+  } else {
+    //创建节点;
+    for (const [key, val] of Object.entries(data)) {
+      g.setNode(key, { label: key });
+      val.forEach((oN) => {
+        g.setNode(oN.filePath, { label: oN.filePath });
+      });
+    }
+    // 创建边
+    for (const [key, val] of Object.entries(data)) {
+      val.forEach((cN) => {
+        let exportStr = "";
+        if (cN.exports) {
+          cN.exports.forEach((str, index) => {
+            if (cN.exports.length > 1 && index === 0) {
+              exportStr += `${str},`;
+            } else if (index === cN.exports.length - 1) {
+              exportStr += `\n${str}`;
+            } else {
+              exportStr += `\n${str},`;
+            }
+          });
+        }
+        g.setEdge(cN.filePath, key, {
+          label: exportStr,
+          curve: d3.curveBasis,
+        });
+      });
+    }
+  }
+
+  const render = new dagreD3.render();
+  // Run the renderer. This is what draws the final graph.
+  render(inner, g);
+  setUpNodeHighlighting();
+  setUpZoomSupport();
+  setUpNodeClickHandler();
+  loadingBox.style.display = "none";
+}
+
 window.addEventListener("message", (event) => {
   const message = event.data;
   console.log("Webview接收到的消息：", message.type, message.data);
-  function createMap(data) {
-    g = new dagreD3.graphlib.Graph().setGraph({
-      rankdir: "LR",
-    });
-
-    if (message.type === "components") {
-      // 创建节点
-      for (const [key, val] of Object.entries(data)) {
-        g.setNode(key, { label: key });
-        val.forEach((oN) => {
-          g.setNode(oN, { label: oN });
-        });
-      }
-
-      // 创建边
-      for (const [key, val] of Object.entries(data)) {
-        val.forEach((cN) => {
-          g.setEdge(cN, key, { label: "", curve: d3.curveBasis });
-        });
-      }
-    } else {
-      //创建节点;
-      for (const [key, val] of Object.entries(data)) {
-        g.setNode(key, { label: key });
-        val.forEach((oN) => {
-          g.setNode(oN.filePath, { label: oN.filePath });
-        });
-      }
-      // 创建边
-      for (const [key, val] of Object.entries(data)) {
-        val.forEach((cN) => {
-          let exportStr = "";
-          if (cN.exports) {
-            cN.exports.forEach((str, index) => {
-              if (cN.exports.length > 1 && index === 0) {
-                exportStr += `${str},`;
-              } else if (index === cN.exports.length - 1) {
-                exportStr += `\n${str}`;
-              } else {
-                exportStr += `\n${str},`;
-              }
-            });
-          }
-          g.setEdge(cN.filePath, key, {
-            label: exportStr,
-            curve: d3.curveBasis,
-          });
-        });
-      }
-    }
-
-    const render = new dagreD3.render();
-    // Run the renderer. This is what draws the final graph.
-    render(inner, g);
-    setUpNodeHighlighting();
-    setUpZoomSupport();
-    loadingBox.style.display = "none";
-  }
-
-  createMap(message.data);
+  mapData = message.data;
+  mapType = message.type;
+  createMap(mapData, mapType);
 });

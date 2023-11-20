@@ -24,3 +24,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Added
 
 - 增加getDepsInVueProject.ignoreSuffix配置，此配置在遍历文件时用来忽略指定的文件后缀，以和文件内引入其他文件时使用的省略后缀的路径正确匹配。
+
+## [0.0.3] - 2023-11-20
+
+### Added
+
+- 支持只展示某指定节点的上下游信息
